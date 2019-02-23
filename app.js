@@ -26,14 +26,20 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static("public"));
 
-let posts = [];
 
 
 app.get("/", function (req, res) {
-    res.render("home", {
-        homeStartingContent: homeStartingContent,
-        posts: posts
+    Post.find(function (err, posts) {
+       if (err)
+           console.log(err);
+       else{
+           res.render("home", {
+               homeStartingContent: homeStartingContent,
+               posts: posts
+           });
+       }
     });
+
 });
 
 app.get("/about", function (req,res) {
@@ -53,26 +59,32 @@ app.post("/compose", function (req, res) {
         title: req.body.postTitle,
         body: req.body.postBody
     });
-
     post.save();
-
-    // posts.push(post);
+    
     res.redirect("/");
 });
 
-app.get("/posts/:title", function (req, res) {
-    let requestedTitle = _.lowerCase(req.params.title);
+app.get("/posts/:postId", function (req, res) {
+    const requestedPostId = req.params.postId;
 
-    posts.forEach(function (post) {
-        let storedTitle = _.lowerCase(post.postTitle);
-
-        if (storedTitle === requestedTitle){
-            res.render("post", {title: post.postTitle, content: post.postBody
-            });
-        }else{
-            console.log("Not Matched!");
-        }
+    Post.findOne({_id: requestedPostId}, function (err, post) {
+       if (err)
+           console.log(err);
+        else {
+            res.render("post", {title: post.title, content: post.body});
+       }
     });
+
+    // posts.forEach(function (post) {
+    //     let storedTitle = _.lowerCase(post.postTitle);
+    //
+    //     if (storedTitle === requestedTitle){
+    //         res.render("post", {title: post.postTitle, content: post.postBody
+    //         });
+    //     }else{
+    //         console.log("Not Matched!");
+    //     }
+    // });
 
 });
 
