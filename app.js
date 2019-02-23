@@ -49,12 +49,14 @@ app.get("/compose", function (req, res) {
 });
 
 app.post("/compose", function (req, res) {
-    const post = {
-        postTitle: req.body.postTitle,
-        postBody: req.body.postBody
-    };
+    const post = new Post({
+        title: req.body.postTitle,
+        body: req.body.postBody
+    });
 
-    posts.push(post);
+    post.save();
+
+    // posts.push(post);
     res.redirect("/");
 });
 
